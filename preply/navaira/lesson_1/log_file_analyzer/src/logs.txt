@@ -1,0 +1,15 @@
+2026-10-14 08:15:00 | INFO | Server started
+2026-10-14 08:16:00 | ERROR | Connection timeout
+2026-10-14 08:17:00 | WARNING | Disk space running low
+2026-10-14 08:18:00 | ERROR | Authentication failed
+2026-10-14 08:19:00 | INFO | User session created
+2026-10-14 08:20:00 | ERROR | Connection timeout
+2026-10-14 08:21:00 | WARNING | Disk space running low
+2026-10-14 08:22:00 | ERROR | Connection timeout
+2026-10-14 08:23:00 | INFO | Configuration loaded
+2026-10-14 08:24:00 | ERROR | Database unavailable
+2026-10-14 08:25:00 | ERROR | Authentication failed
+INVALID ENTRY
+2026-10-14 08:26:00 | INFO | Server stopped
+2026-10-14 08:27:00 | DEBUG | Debug message
+2026-10-14 08:28:00 | ERROR | Database unavailable
