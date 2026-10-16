@@ -22,8 +22,6 @@ void Menu::init()
         log_file_name = user_file_name;
     }
 
-    std::cout << "Analyzing log file '" << log_file_name << "'..." << std::endl << std::endl;
-
-    LogReader log_reader;
-    log_reader.can_open_file(log_file_name);
+    LogReader log_reader(log_file_name);
+    log_reader.analyze();
 }
