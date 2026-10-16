@@ -19,6 +19,7 @@ void LogReader::read_lines_from_log()
     {
         std::cout << "ERROR: failed to open file '" << get_log_file() << "'" << \
             ", File: " << __FILE__ << ", Function: " << __PRETTY_FUNCTION__ << ", Line:" << __LINE__ << std::endl;
+        return;
     }
     std::vector<std::string> *log_lines = get_log_lines();
     std::string log_line;
