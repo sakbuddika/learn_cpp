@@ -24,7 +24,8 @@ void LogReader::analyze()
             {
                 report.increment_messages_by_severity(report.string_to_severity(severity));
                 report.increment_valid_entries();
-                report.increment_top_error_messages(error_message);
+                if(severity == " ERROR ")
+                    report.increment_top_error_messages(error_message);
             }
             catch (std::exception &e)
             {
@@ -47,6 +48,7 @@ void LogReader::read_lines_from_log()
     std::string log_line;
     while(getline(log_file, log_line))
     {
+        //TODO: Dont access the member variable directly
         log_lines.push_back(log_line);
     }
 }
@@ -54,7 +56,7 @@ void LogReader::read_lines_from_log()
 std::vector<std::string> LogReader::tokenize(const std::string & log_line)
 {   
     std::vector<std::string> extracted_tokens;
-    signed int start_position, end_position;
+    size_t start_position, end_position;
 
     start_position = log_line.find_first_not_of(DELIMITER);
     do{
@@ -77,5 +79,17 @@ std::vector<std::string> LogReader::tokenize(const std::string & log_line)
     } while (end_position != std::string::npos);
 
     return extracted_tokens;
+}
+
+std::string LogReader::ltrim(std::string & message)
+{
+    const std::string white_spaces = " \t \n \r";
+    return "";
+}
+
+std::string LogReader::rtrim(std::string & message)
+{
+    const std::string white_spaces = " \t \n \r";
+    return "";
 }
 

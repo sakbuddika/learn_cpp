@@ -16,6 +16,7 @@ class LogReader
         std::vector<std::string> tokenize(const std::string &);
         bool line_contains_delimiter(const std::string &);
         Report report;
+        static std::string trim_message(std::string &);
     public:
         LogReader(
             std::string _log_file_name
