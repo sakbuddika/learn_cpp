@@ -15,4 +15,6 @@ class Report
     public:
         Report() { std::cout << "DEBUG: Report constructor" << std::endl; }
         ~Report() { std::cout << "DEBUG: Report destructor" << std::endl; }
+        void display();
+
 };
