@@ -2,6 +2,5 @@
 
 int main()
 {
-    Menu menu;
-    menu.init();
+    Menu::init();
 }
