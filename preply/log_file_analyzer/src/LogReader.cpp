@@ -18,13 +18,13 @@ void LogReader::analyze()
         }
         else
         {
-            std::string severity = extracted_tokens[1];
+            std::string severity = trim_message(extracted_tokens[1]);
             std::string error_message = extracted_tokens[2];
             try
             {
                 report.increment_messages_by_severity(report.string_to_severity(severity));
                 report.increment_valid_entries();
-                if(severity == " ERROR ")
+                if(severity == "ERROR")
                     report.increment_top_error_messages(error_message);
             }
             catch (std::exception &e)
@@ -48,8 +48,7 @@ void LogReader::read_lines_from_log()
     std::string log_line;
     while(getline(log_file, log_line))
     {
-        //TODO: Dont access the member variable directly
-        log_lines.push_back(log_line);
+        append_log_lines(log_line);
     }
 }
 
@@ -81,15 +80,27 @@ std::vector<std::string> LogReader::tokenize(const std::string & log_line)
     return extracted_tokens;
 }
 
-std::string LogReader::ltrim(std::string & message)
+std::string LogReader::trim_message(const std::string & message)
 {
     const std::string white_spaces = " \t \n \r";
-    return "";
-}
+    std::string trimmed_message = message;
+    unsigned int highest_left_pos = 0;
+    unsigned int lowest_right_pos = trimmed_message.length() - 1;
 
-std::string LogReader::rtrim(std::string & message)
-{
-    const std::string white_spaces = " \t \n \r";
-    return "";
+    for(const auto& space : white_spaces)
+    {
+        unsigned int pos = trimmed_message.find_first_not_of(space);
+        if ( pos > highest_left_pos)
+            highest_left_pos = pos;
+    }
+    // get rid of the left white spaces
+    trimmed_message = trimmed_message.substr(highest_left_pos);
+    for(const auto& space : white_spaces)
+    {
+        unsigned int pos = trimmed_message.find_last_not_of(space);
+        if ( pos < lowest_right_pos)
+            lowest_right_pos = pos;
+    }
+    // get rid of the right white spaces
+    return trimmed_message.substr(0,lowest_right_pos + 1);
 }
-

@@ -15,8 +15,8 @@ class LogReader
         void read_lines_from_log();
         std::vector<std::string> tokenize(const std::string &);
         bool line_contains_delimiter(const std::string &);
+        void append_log_lines(const std::string &log_line) {log_lines.push_back(log_line);}
         Report report;
-        static std::string trim_message(std::string &);
     public:
         LogReader(
             std::string _log_file_name
@@ -28,4 +28,5 @@ class LogReader
             //std::cout << "DEBUG: Report destructor" << std::endl;
         }
         void analyze();
+        static std::string trim_message(const std::string &);
 };

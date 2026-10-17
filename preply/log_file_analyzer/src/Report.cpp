@@ -32,11 +32,11 @@ void Report::display()
 
 Severity Report::string_to_severity(const std::string & severity)
 {
-    if (severity == " INFO ")
+    if (severity == "INFO")
         return Severity::INFO;
-    else if (severity == " WARNING ")
+    else if (severity == "WARNING")
         return Severity::WARNING;
-    else if (severity == " ERROR ")
+    else if (severity == "ERROR")
         return Severity::ERROR;
     else
         throw std::runtime_error(severity + "is not a valid severity type");
