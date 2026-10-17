@@ -9,6 +9,7 @@ enum class Severity { INFO, WARNING, ERROR };
 class Report
 {
     private:
+        const unsigned int MAX_NUM_MESSAGES = 3;
         unsigned int valid_entries = 0;
         unsigned int malformed_lines = 0;
         std::map<Severity, int> messages_by_severity = {};

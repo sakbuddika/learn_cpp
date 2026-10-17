@@ -4,11 +4,12 @@
 
 void Report::display()
 {
-    // system("clear");
+    system("clear");
     Menu::print_header();
     std::cout << "Log Summary" << std::endl;
     std::cout << "Valid entries: " << valid_entries << std::endl;
     std::cout << "Malformed lines: " << malformed_lines << std::endl;
+    std::cout << std::endl;
 
     // INFO: 4
     for (const auto& [severity, num_messages] : messages_by_severity)
@@ -16,12 +17,17 @@ void Report::display()
         std::cout << severity_to_string(severity) << "\t" << num_messages << std::endl;
     }
 
+    std::cout << std::endl;
+
     std::cout << "Top Error Messages:" << std::endl;
     unsigned int rank = 0;
 
     // 1. Connection timeout (3)
     for (const auto& [error_message, num_messages] : top_error_messages)
         std::cout << ++rank << '.' << error_message << "\t" << '(' << num_messages << ')' << std::endl;
+
+
+    std::cout << std::endl;
 }
 
 Severity Report::string_to_severity(const std::string & severity)

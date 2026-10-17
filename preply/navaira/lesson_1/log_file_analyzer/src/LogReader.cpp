@@ -11,7 +11,6 @@ void LogReader::analyze()
     for (const std::string& line : log_lines)
     {
         const std::vector<std::string> extracted_tokens = tokenize(line);
-        std::cout << extracted_tokens.size() << std::endl;
         if(extracted_tokens.size() != TOKENS_PER_LINE)
         {
             report.increment_malformed_lines();
@@ -26,7 +25,6 @@ void LogReader::analyze()
                 report.increment_messages_by_severity(report.string_to_severity(severity));
                 report.increment_valid_entries();
                 report.increment_top_error_messages(error_message);
-
             }
             catch (std::exception &e)
             {
