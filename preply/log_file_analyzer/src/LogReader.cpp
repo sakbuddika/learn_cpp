@@ -25,7 +25,7 @@ void LogReader::analyze()
                 report.increment_messages_by_severity(report.string_to_severity(severity));
                 report.increment_valid_entries();
                 if(severity == "ERROR")
-                    report.increment_top_error_messages(error_message);
+                    report.increment_error_messages(error_message);
             }
             catch (std::exception &e)
             {
