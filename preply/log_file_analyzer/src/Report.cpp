@@ -69,7 +69,11 @@ std::vector<std::map<std::string, int>> Report::get_top_errors_sort_by_num(const
         {
             // get the iterator by using cbegin (const begin) since we are not modifying
             // then access the second element to get the num errors and compare
-            return a.cbegin()->second > b.cbegin()->second;
+            if (a.cbegin()->second != b.cbegin()->second)
+            {
+                return a.cbegin()->second > b.cbegin()->second;
+            }
+            return a.cbegin()->first > b.cbegin()->first;
         }
     );
     // copy MAX_NUM_MESSAGES from sorted_error_messages to top_error_messages
