@@ -1,0 +1,78 @@
+Log File Analyzer
+Overview
+In this project you’ll build a command-line application that reads application logs from a text
+file, analyzes them, and produces a summary report.
+Concepts This Project Exercises
+•
+•
+•
+•
+•
+•
+•
+Classes and separate compilation: designing classes with clear responsibilities, and
+splitting declarations (.h) from implementations (.cpp).
+File streams: reading files with std::ifstream and checking stream state to detect missing
+or unreadable files.
+String parsing: splitting and trimming text using std::string operations such as find,
+substr, or std::getline with a delimiter.
+Standard containers: choosing between std::map, std::unordered_map, and std::vector
+based on what each operation needs.
+Sorting with custom comparators: ordering results with std::sort and a lambda.
+Const-correctness and references: passing objects efficiently and marking functions
+that don’t modify state as const.
+Error handling: deciding when to skip bad input, when to report it, and when to stop the
+program.
+Requirements
+1. Read log entries from a file named logs.txt.
+2. Each valid entry has the format: YYYY-MM-DD HH:MM:SS | LEVEL | Message
+3. A valid severity level is exactly one of INFO, WARNING, or ERROR. Any other level
+(for example DEBUG) makes the entry malformed.
+4. Count the total number of valid entries, the number at each severity level, and the number
+of malformed lines.
+5. Identify the five most frequent ERROR messages and their counts. If messages are tied,
+order them alphabetically.
+6. Organize the program using classes and appropriate data structures.
+7. Handle a missing file, an empty file, and malformed entries gracefully. The program
+shouldn’t crash, and it should tell the user what happened.
+8. Separate the program into appropriate header and source files.
+You’re free to choose your own design and implementation.
+Sample Input (logs.txt)
+2026-10-14 08:15:00 | INFO | Server started
+2026-10-14 08:16:00 | ERROR | Connection timeout
+2026-10-14 08:17:00 | WARNING | Disk space running low
+2026-10-14 08:18:00 | ERROR | Authentication failed
+2026-10-14 08:19:00 | INFO | User session created
+2026-10-14 08:20:00 | ERROR | Connection timeout
+2026-10-14 08:21:00 | WARNING | Disk space running low
+2026-10-14 08:22:00 | ERROR | Connection timeout
+2026-10-14 08:23:00 | INFO | Configuration loaded
+2026-10-14 08:24:00 | ERROR | Database unavailable
+2026-10-14 08:25:00 | ERROR | Authentication failed
+INVALID ENTRY
+2026-10-14 08:26:00 | INFO | Server stopped
+2026-10-14 08:27:00 | DEBUG | Debug message
+2026-10-14 08:28:00 | ERROR | Database unavailable
+Expected Output
+Your formatting can differ, but the numbers should match:
+Log Summary
+Valid entries: 13
+Malformed lines: 2
+INFO: 4
+WARNING: 2
+ERROR: 7
+Top Error Messages:
+1. Connection timeout (3)
+2. Authentication failed (2)
+3. Database unavailable (2)
+Optional Challenges
+If you finish early, try any of these:
+•
+•
+•
+Accept the log file name as a command-line argument, with logs.txt as the default.
+Validate that timestamps are real dates and times. For example, 2026-13-45 99:00:00
+should be rejected.
+Write a small test program that checks your parser against valid and malformed lines.
+Your testing background will be useful here.
+Print the line number of each malformed entry.
