@@ -19,7 +19,7 @@ void LogReader::analyze()
         else
         {
             std::string severity = trim_message(extracted_tokens[1]);
-            std::string error_message = extracted_tokens[2];
+            std::string error_message = trim_message(extracted_tokens[2]);
             try
             {
                 report.increment_messages_by_severity(report.string_to_severity(severity));
