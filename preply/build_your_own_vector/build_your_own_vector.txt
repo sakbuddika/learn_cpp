@@ -1,0 +1,290 @@
+Exercise 1: Build Your Own Vector
+
+C++ from the ground up – memory, lifetimes and ownership
+
+Overview
+
+here is your first exercise. You will build your own version of std::vector – a growable array –
+using nothing but raw memory and pointers. It is a small project, but it touches almost every
+“low-level” idea that matters in real C++ code:
+• how objects are laid out in memory,
+• who owns a piece of memory and who is responsible for freeing it,
+• the difference between allocating memory and constructing an object in it,
+• what really happens when an object is copied or moved,
+• how templates let one piece of code work for any type.
+Once you have built a vector yourself, you will read code that uses std::vector, std::string and
+smart pointers very differently.
+• Estimated effort: about 10 hours, plus optional stretch goals
+• Language standard: C++17 (C++20 is fine too)
+
+Important: it is completely fine if you do not finish everything. If you get stuck, write down where
+and why you got stuck and move on. Those notes are the most valuable material for our lesson. You
+can also message me with questions at any time.
+
+Ground Rules
+
+1. Not allowed inside your vector implementation: std::vector, std::unique_ptr,
+std::shared_ptr, std::allocator, std::array, std::uninitialized_copy and friends.
+The point is to do the memory work yourself.
+2. Allowed: std::size_t, std::move, std::swap, std::forward, exceptions such as
+std::out_of_range, and the <new> header. In your tests you may use anything you like,
+including std::vector for comparison.
+3. Always compile with warnings and sanitizers turned on (see Setup below). A program that
+“seems to work” but makes the sanitizer complain is not finished yet.
+4. Commit often. At least one commit per part, with a meaningful message. I want to see how
+the code evolved, not just the end result.
+
+
+Setup (about 1 hour)
+
+Create a new Git repository on GitHub or GitLab with this layout:
+vector-exercise/
+README.md
+your notes and answers (see Part 6)
+include/
+vector.h
+your Vector class
+tests/
+tracer.h
+helper type, given below
+test_vector.cpp
+Compile and run your tests like this (Linux or macOS, GCC or Clang):
+g++ -std=c++17 -Wall -Wextra -Wpedantic -g \
+-fsanitize=address,undefined \
+-Iinclude tests/test_vector.cpp -o run_tests
+./run_tests
+On Windows with Visual Studio, use the flags /std:c++17 /W4 /fsanitize=address /Zi. If you
+prefer CMake, feel free to add a CMakeLists.txt – that is a nice bonus, but not required.
+Sanity check: before writing any vector code, put this deliberate bug into a test file, compile with
+the flags above and run it:
+int main() {
+int* p = new int[3];
+p[3] = 42;
+// one past the end!
+delete[] p;
+}
+You should get a red AddressSanitizer: heap-buffer-overflow report. If you do, your tools are working.
+Remove the bug and continue.
+
+Testing
+
+I will leave the test design to you. Keep it simple: plain
+functions with assert are enough, no test framework needed.
+#include <cassert>
+#include <iostream>
+#include "vector.h"
+void test_push_back_grows() {
+Vector<int> v;
+for (int i = 0; i < 100; ++i) {
+v.push_back(i);
+}
+assert(v.size() == 100);
+assert(v.capacity() >= 100);
+for (int i = 0; i < 100; ++i) {
+assert(v[i] == i);
+}
+}
+int main() {
+test_push_back_grows();
+std::cout << "All tests passed\n";
+}
+Note: assert does nothing when NDEBUG is defined (typical for release builds), so always run your
+tests in a debug build.
+
+
+Part 1: IntVector – a growable array of int (about 2 hours)
+
+Start without templates. Write a class IntVector that stores int values in a heap array created
+with new int[...].
+class IntVector {
+public:
+IntVector();
+~IntVector();
+std::size_t size() const;
+std::size_t capacity() const;
+bool empty() const;
+int& operator[](std::size_t index);
+const int& operator[](std::size_t index) const;
+int& at(std::size_t index); // throws std::out_of_range
+void push_back(int value);
+void pop_back();
+void reserve(std::size_t new_capacity);
+void clear();
+private:
+int* data_ = nullptr;
+std::size_t size_ = 0;
+std::size_t capacity_ = 0;
+};
+
+Requirements:
+
+• size() is the number of elements in use; capacity() is the number of elements the current
+buffer can hold.
+• When push_back runs out of space, allocate a bigger buffer, copy the old elements over, free
+the old buffer. Double the capacity each time (start with capacity 1 if it was 0).
+• reserve(n) grows the buffer to at least n. It never shrinks.
+• clear() sets the size to 0 but keeps the buffer.
+• operator[] does no bounds checking (just like the real one); at() does and throws
+std::out_of_range.
+• The destructor frees the buffer. No leaks!
+Experiment: add a counter that counts how many times your vector allocates a new buffer. How
+many allocations happen for 1,000 push_back calls with doubling? How many would it be if you
+grew the capacity by just 1 each time? Write both numbers in your README.
+
+Part 2: Copying and Moving – the Rule of Five (about 2 hours)
+
+Step 1 – break it on purpose. Write this test before adding any new code, and run it with the
+sanitizer:
+void test_copy() {
+IntVector a;
+a.push_back(1);
+a.push_back(2);
+IntVector b = a;
+// copy
+b[0] = 99;
+std::cout << a[0] << "\n";
+}
+// what do you expect to see?
+// ...and what happens here?
+Before running it, write down what you expect. Then copy the sanitizer’s error message into your
+README and explain in your own words what went wrong. (Hint: what did the compiler-generated
+copy constructor actually copy?)
+Step 2 – fix it. Implement all five special member functions:
+IntVector(const IntVector& other);
+// copy constructor
+IntVector& operator=(const IntVector& other); // copy assignment
+IntVector(IntVector&& other) noexcept;
+// move constructor
+IntVector& operator=(IntVector&& other) noexcept; // move assignment
+~IntVector();
+// destructor
+• A copy gets its own buffer with the same elements. Changing one vector must never affect
+the other.
+• A move steals the buffer from other and leaves other empty but valid (size 0, capacity 0,
+data_ == nullptr). No allocation should happen during a move.
+• Make sure self-assignment (a = a;) works correctly.
+• Write tests for each of the five functions.
+Tip: look up the copy-and-swap idiom. It is a neat way to write a correct assignment operator with
+very little code.
+
+Part 3: Vector of Any Type – Templates (about 1 hour)
+
+Turn IntVector into a class template Vector<T>. Keep everything in vector.h (template code
+normally lives in headers – think about why and write a sentence about it in your README).
+Add a second overload so that temporaries can be moved in:
+void push_back(const T& value);
+void push_back(T&& value);
+// copies value
+// moves value
+Test it with Vector<int>, Vector<double> and Vector<std::string>.
+Now copy this helper type into tests/tracer.h. It counts how often objects are created, copied,
+moved and destroyed:
+#pragma once
+struct Tracer {
+static inline int alive = 0;
+static inline int default_constructed = 0;
+static inline int copies = 0;
+static inline int moves = 0;
+int value = 0;
+Tracer() { ++alive; ++default_constructed; }
+explicit Tracer(int v) : value(v) { ++alive; }
+Tracer(const Tracer& o) : value(o.value) {
+++alive; ++copies;
+}
+Tracer(Tracer&& o) noexcept : value(o.value) {
+++alive; ++moves;
+}
+Tracer& operator=(const Tracer& o) {
+value = o.value; ++copies; return *this;
+}
+Tracer& operator=(Tracer&& o) noexcept {
+value = o.value; ++moves; return *this;
+}
+~Tracer() { --alive; }
+static void reset() {
+alive = default_constructed = copies = moves = 0;
+}
+};
+Run this and write down the numbers in your README:
+Tracer::reset();
+{
+Vector<Tracer> v;
+v.reserve(100);
+v.push_back(Tracer(7));
+// print Tracer::alive and Tracer::default_constructed here
+}
+// print Tracer::alive here
+Something is wrong: we asked for one element but got many more Tracer objects. Why? This is
+what Part 4 fixes.
+
+Part 4: Separate Memory from Objects (about 2.5 hours)
+
+This is the heart of the exercise. new T[n] does two things at once: it allocates memory and
+constructs n objects in it. A real vector must do those two steps separately: capacity is raw, empty
+memory; only the first size() slots contain real objects.
+You need four tools:
+#include <new>
+// 1. allocate raw memory -- no constructors run
+T* raw = static_cast<T*>(::operator new(n * sizeof(T)));
+// 2. construct an object in an existing slot ("placement new")
+new (raw + i) T(value);
+// 3. destroy an object without freeing its memory
+raw[i].~T();
+// 4. free raw memory -- no destructors run
+::operator delete(raw);
+Rewrite Vector<T> so that:
+• reserve and growing allocate raw memory, then move each old element into the new buffer
+with placement new, then destroy the old elements, then free the old buffer.
+• push_back constructs exactly one new object at position size_.
+• pop_back destroys exactly one object (the last one).
+• clear destroys all objects but keeps the memory.
+• The destructor destroys all objects and then frees the memory.
+• Copy and move still work.
+Your acceptance test: after every test function using Tracer, Tracer::alive must be back to
+0. With reserve(100) followed by one push_back, there must be exactly one live Tracer, and
+Tracer::default_constructed must be 0.
+Also check: does growing your vector now copy or move elements? Use the Tracer counters to prove
+it.
+
+Part 5: Range-based for Loops (about 30 minutes)
+
+Add begin() and end() (both const and non-const) that return plain pointers. Then this should
+compile and work:
+Vector<std::string> names;
+names.push_back("Ada");
+names.push_back("Bjarne");
+for (const auto& name : names) {
+std::cout << name << "\n";
+}
+Why is a plain pointer good enough as an iterator here? Would that still be true for a linked list?
+
+Part 6: Your README (about 1 hour, spread over the parts)
+
+Your README.md is part of the exercise. Please include:
+1. How to build and run the tests.
+2. The allocation counts from Part 1 (doubling vs. growing by 1).
+3. The sanitizer output from Part 2 and your explanation.
+4. A small ASCII drawing of the memory of a Vector<int> with size 3 and capacity 4. Which
+part lives on the stack and which on the heap? What does sizeof(Vector<int>) print on
+your machine, and why that number?
+5. The Tracer numbers before and after Part 4, and why they changed.
+6. Anything that confused you, surprised you, or where you are not sure your solution is right.
+Also: roughly how many hours each part took you.
+Stretch Goals (optional)
+Only if you have time left and enjoy it – pick any:
+• emplace_back: construct the element directly in place from constructor arguments, using a
+variadic template and std::forward.
+• The aliasing trap: what happens with v.push_back(v[0]); when the vector is full and has
+to grow? Write a test that exposes the bug (if your code has it) and fix it.
+• Exception safety: give Tracer a switch that makes its copy constructor throw on the n-th
+copy. If an exception happens in the middle of growing, does your vector leak memory or lose
+elements? Can you make reserve leave the vector unchanged in that case?
+• insert and erase at an arbitrary position.
+• Benchmark: compare push_back of 10 million ints for your Vector and std::vector (with
+optimisation, -O2, and without sanitizers). Are you close?
+Checklist Before You Send It
+• All tests pass with -fsanitize=address,undefined and no sanitizer warnings.
+• No compiler warnings with -Wall -Wextra -Wpedantic.
+• Tracer::alive == 0 at the end of every Tracer test.
+• The README answers the questions from Part 6.
+• Everything is committed and pushed
