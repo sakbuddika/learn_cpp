@@ -1,0 +1,25 @@
+Issues Found
+1. Testing the compiler with the buggy code didn't work with clang
+
+int main() {
+int* p = new int[3];
+p[3] = 42;
+// one past the end!
+delete[] p;
+}
+when the compiler is set to clang
+
+❯ cmake --build .
+[ 50%] Building CXX object CMakeFiles/test_vector.dir/tests/test_vector.cpp.o
+[100%] Linking CXX executable test_vector
+/usr/bin/ld: CMakeFiles/test_vector.dir/tests/test_vector.cpp.o: in function `main':
+/home/sak/git/learn_cpp/preply/build_your_own_vector/src/tests/test_vector.cpp:3:(.text+0x1d): undefined reference to `operator new[](unsigned long)'
+/usr/bin/ld: /home/sak/git/learn_cpp/preply/build_your_own_vector/src/tests/test_vector.cpp:5:(.text+0x136): undefined reference to `operator delete[](void*)'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+gmake[2]: *** [CMakeFiles/test_vector.dir/build.make:97: test_vector] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:83: CMakeFiles/test_vector.dir/all] Error 2
+gmake: *** [Makefile:91: all] Error
+
+Got the correct heap-buffer-overflow error with gcc compiler
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow /home/sak/git/learn_cpp/preply/build_your_own_vector/src/tests/test_vector.cpp:4 in main
