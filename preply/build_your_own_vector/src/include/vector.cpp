@@ -31,17 +31,14 @@ void IntVector::push_back(int value)
         }
         capacity_ *= 2;
     }
-    int* new_buffer_ = new int[capacity_];
-    std::memcpy(new_buffer_, buffer_, sizeof(int) * (size_ - 1));
-    delete[] buffer_;
-    buffer_ = new_buffer_;
+    reserve(capacity_);
     buffer_[size_ - 1] = value;
 }
 
 void IntVector::reserve(std::size_t new_capacity)
 {
     int* new_buffer_ = new int[new_capacity];
-    std::memcpy(new_buffer_, buffer_, sizeof(int));
+    std::memcpy(new_buffer_, buffer_, sizeof(int) * (size_ - 1));
     delete[] buffer_;
     buffer_ = new_buffer_;
 }
