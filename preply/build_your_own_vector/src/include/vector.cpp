@@ -42,6 +42,7 @@ void IntVector::reserve(std::size_t new_capacity)
         std::memcpy(new_buffer_, buffer_, sizeof(int) * (size_ - 1));
         delete[] buffer_;
         buffer_ = new_buffer_;
+        capacity_ = new_capacity;
     }
 }
 
