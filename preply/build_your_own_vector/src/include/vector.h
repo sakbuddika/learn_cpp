@@ -1,3 +1,4 @@
+#pragma once
 class IntVector {
     public:
         IntVector();
@@ -13,7 +14,7 @@ class IntVector {
         void reserve(std::size_t new_capacity);
         void clear();
     private:
-        int* data_ = nullptr;
+        int* buffer_ = nullptr;
         std::size_t size_ = 0;
         std::size_t capacity_ = 0;
 };
