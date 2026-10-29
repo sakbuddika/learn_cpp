@@ -10,10 +10,10 @@ void test_push_back_grows() {
      }
      assert(v.size() == 100);
      assert(v.capacity() >= 100);
-//     for (int i = 0; i < 100; ++i)
-//     {
-//         assert(v[i] == i);
-//     }
+     for (int i = 0; i < 100; ++i)
+     {
+         assert(v[i] == i);
+     }
 }
 
 int main()
