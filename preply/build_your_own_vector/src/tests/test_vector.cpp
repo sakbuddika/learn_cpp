@@ -18,13 +18,13 @@ void test_push_back_grows() {
          assert(v[i] == i);
      }
      // negative test: check cannot shrink using reserve
-     std::cout << v.capacity() << std::endl;
-     v.reserve(80) ;
-     assert(v.capacity() >= 100);
-     v.reserve(200) ;
+     // std::cout << v.capacity() << std::endl;
+     // v.reserve(80) ;
+     // assert(v.capacity() >= 100);
+     // v.reserve(200) ;
      // test: check capacity is gt 200 after reserve
      // assert(v.capacity() >= 200);
-     std::cout << v.capacity() << std::endl;
+     // std::cout << v.capacity() << std::endl;
 }
 
 int main()

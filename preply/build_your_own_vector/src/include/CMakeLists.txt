@@ -1,5 +1,5 @@
-add_library(library)
-target_sources(library PRIVATE vector.cpp)
+add_library(vector)
+target_sources(vector PRIVATE vector.h vector.cpp)
 
 
 
