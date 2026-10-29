@@ -30,8 +30,8 @@ void IntVector::push_back(int value)
             capacity_ = 1;
         }
         capacity_ *= 2;
+        reserve(capacity_);
     }
-    reserve(capacity_);
     buffer_[size_ - 1] = value;
 }
 
