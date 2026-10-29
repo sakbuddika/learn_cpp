@@ -1,15 +1,15 @@
 #include <cassert>
 #include <iostream>
-#include "../include/vector.h"
+#include "vector.h"
 
 void test_push_back_grows() {
     IntVector v;
-//     for (int i = 0; i < 100; ++i)
-//     {
-//         v.push_back(i);
-//     }
-//     assert(v.size() == 100);
-//     assert(v.capacity() >= 100);
+     for (int i = 0; i < 100; ++i)
+     {
+         v.push_back(i);
+     }
+     assert(v.size() == 100);
+     assert(v.capacity() >= 100);
 //     for (int i = 0; i < 100; ++i)
 //     {
 //         assert(v[i] == i);

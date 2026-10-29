@@ -1,4 +1,7 @@
 #pragma once
+#include <cstddef>
+#include <cstring>
+
 class IntVector {
     public:
         IntVector();
