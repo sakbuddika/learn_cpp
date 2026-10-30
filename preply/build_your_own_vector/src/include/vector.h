@@ -16,8 +16,12 @@ class IntVector {
         void pop_back();
         void reserve(std::size_t new_capacity);
         void clear();
+        void set_allocations() {allocations_++;}
+        int get_allocations() {return allocations_;}
     private:
+        const int CAPACITY_MULTIPLIER = 2;
         int* buffer_ = nullptr;
         std::size_t size_ = 0;
         std::size_t capacity_ = 0;
+        std::size_t allocations_ = 0;
 };
