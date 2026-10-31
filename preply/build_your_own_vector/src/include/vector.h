@@ -5,8 +5,12 @@
 class IntVector {
     public:
         IntVector();
+        bool operator==(const IntVector& other);
+        bool operator!=(const IntVector& other);
         IntVector(const IntVector& other); // copy constructor
         IntVector& operator=(const IntVector& other); // copy assignment
+        IntVector(IntVector&& other) noexcept; // move constructor
+        IntVector& operator=(IntVector&& other) noexcept; // move assignment
         ~IntVector();
         std::size_t size() const;
         std::size_t capacity() const;
