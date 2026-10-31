@@ -1,9 +1,29 @@
 #include "vector.h"
 #include <stdexcept>
+#include <utility>
 
 IntVector::IntVector()
 {
     buffer_ = new int[capacity_];
+}
+
+IntVector::IntVector(const IntVector& other)
+    :size_(other.size_), capacity_(other.capacity_)
+{
+    buffer_ = new int[capacity_];
+    set_allocations();
+    std::memcpy(buffer_, other.buffer_, sizeof(int) * (size_ - 1));
+}
+
+IntVector& IntVector::operator=(const IntVector& other)
+{
+    //std::swap I had issues (no overloaded function matches the argument list size_t, const size_t)
+    IntVector v_temp_ = other;
+    std::swap(size_, v_temp_.size_);
+    std::swap(capacity_, v_temp_.capacity_);
+    std::swap(allocations_, v_temp_.allocations_);
+    std::swap(buffer_, v_temp_.buffer_);
+    return *this;
 }
 
 IntVector::~IntVector()
@@ -38,7 +58,6 @@ void IntVector::push_back(int value)
 
 void IntVector::pop_back()
 {
-    buffer_[size_- 1] = 0;
     size_--;
 }
 

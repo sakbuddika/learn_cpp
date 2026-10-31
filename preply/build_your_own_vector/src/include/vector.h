@@ -5,6 +5,8 @@
 class IntVector {
     public:
         IntVector();
+        IntVector(const IntVector& other); // copy constructor
+        IntVector& operator=(const IntVector& other); // copy assignment
         ~IntVector();
         std::size_t size() const;
         std::size_t capacity() const;

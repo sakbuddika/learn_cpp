@@ -76,6 +76,22 @@ void test_allocations()
     assert(v.capacity() == 1024);
 }
 
+void test_copy() {
+    IntVector a;
+    a.push_back(1);
+    a.push_back(2);
+    IntVector b = a;
+    b[0] = 99;
+    assert(a[0] == 1);
+    assert(b[0] == 99);
+    std::cout << b[0] << "\n";
+    IntVector c;
+    c = a;
+    c[0] = 99;
+    assert(a[0] == 1);
+    assert(b[0] == 99);
+}
+
 int main()
 {
     IntVector v;
@@ -85,5 +101,6 @@ int main()
     test_operators(v);
     test_clear(v);
     test_allocations();
+    test_copy();
     std::cout << "All tests passed \n";
 }
