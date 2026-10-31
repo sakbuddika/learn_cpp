@@ -64,7 +64,7 @@ void test_clear(IntVector& v)
     assert(v.capacity() >= 200);
 }
 
-void test_allocatations()
+void test_allocations()
 {
     IntVector v;
     for (int i = 0; i < 1000; ++i)
@@ -84,6 +84,6 @@ int main()
     test_reserve(v);
     test_operators(v);
     test_clear(v);
-    test_allocatations();
+    test_allocations();
     std::cout << "All tests passed \n";
 }
