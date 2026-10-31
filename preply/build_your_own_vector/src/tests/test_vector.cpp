@@ -84,7 +84,6 @@ void test_copy() {
     b[0] = 99;
     assert(a[0] == 1);
     assert(b[0] == 99);
-    std::cout << b[0] << "\n";
     IntVector c;
     c = a;
     c[0] = 99;
