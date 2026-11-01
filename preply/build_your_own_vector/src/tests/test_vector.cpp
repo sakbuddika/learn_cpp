@@ -2,6 +2,22 @@
 #include <iostream>
 #include "vector.h"
 
+void test_empty_vector()
+{
+    IntVector v;
+    //test:: at() out of bound
+    bool threw = false;
+    try
+    {
+        v.at(0);
+    }
+    catch(const std::out_of_range &)
+    {
+        threw = true;
+    }
+    assert(threw);
+}
+
 void test_push_back()
 {
     IntVector v;
@@ -156,22 +172,6 @@ void test_move()
     assert(e[0] == 1);
     assert(e[1] == 2);
     #pragma GCC diagnostic pop
-}
-
-void test_empty_vector()
-{
-    IntVector v;
-    //test:: at() out of bound
-    bool threw = false;
-    try
-    {
-        v.at(0);
-    }
-    catch(const std::out_of_range &)
-    {
-        threw = true;
-    }
-    assert(threw);
 }
 
 int main()
