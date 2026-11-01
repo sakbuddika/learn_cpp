@@ -16,6 +16,7 @@ void test_empty_vector()
         threw = true;
     }
     assert(threw);
+    v.reserve(10);
 }
 
 void test_push_back()
@@ -107,6 +108,16 @@ void test_clear()
     }
     v.reserve(200) ;
     v.clear();
+    bool threw = false;
+    try
+    {
+        v.at(0);
+    }
+    catch(const std::out_of_range &)
+    {
+        threw = true;
+    }
+    assert(threw);
     assert(v.size() == 0);
     assert(v.capacity() >= 200);
 }
@@ -143,6 +154,9 @@ void test_copy()
     d[0] = 99;
     assert(c[0] == 1);
     assert(d[0] == 99);
+    // copy empty vector
+    IntVector e;
+    IntVector f = e;
 }
 
 void test_move()
