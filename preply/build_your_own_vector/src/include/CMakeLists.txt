@@ -1,5 +1,4 @@
-add_library(vector)
-target_sources(vector PRIVATE vector.h vector.cpp)
-
+add_library(vector vector.cpp)
+target_include_directories(vector PUBLIC .)
 
 
