@@ -1,4 +1,2 @@
-add_library(vector vector.cpp)
-target_include_directories(vector PUBLIC .)
-
-
+add_library(vector INTERFACE)
+target_include_directories(vector INTERFACE .)

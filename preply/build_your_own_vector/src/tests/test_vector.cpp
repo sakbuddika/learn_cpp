@@ -4,7 +4,7 @@
 
 void test_empty_vector()
 {
-    IntVector v;
+    Vector<int> v;
     //test:: at() out of bound
     bool threw = false;
     try
@@ -21,7 +21,7 @@ void test_empty_vector()
 
 void test_push_back()
 {
-    IntVector v;
+    Vector<int> v;
     assert(v.empty() == true);
     for (int i = 0; i < 100; ++i)
     {
@@ -42,7 +42,7 @@ void test_push_back()
 
 void test_pop_back()
 {
-    IntVector v;
+    Vector<int> v;
     v.pop_back();
     for (int i = 0; i < 100; ++i)
     {
@@ -67,7 +67,7 @@ void test_pop_back()
 
 void test_reserve()
 {
-    IntVector v;
+    Vector<int> v;
     v.reserve(10) ;
     for (int i = 0; i < 100; ++i)
     {
@@ -83,7 +83,7 @@ void test_reserve()
 
 void test_operators()
 {
-    IntVector v;
+    Vector<int> v;
     for (int i = 0; i < 100; ++i)
     {
         v.push_back(i);
@@ -100,7 +100,7 @@ void test_operators()
 
 void test_clear()
 {
-    IntVector v;
+    Vector<int> v;
     v.clear();
     for (int i = 0; i < 100; ++i)
     {
@@ -124,7 +124,7 @@ void test_clear()
 
 void test_allocations()
 {
-    IntVector v;
+    Vector<int> v;
     assert(v.get_allocations() == 0);
     for (int i = 0; i < 1000; ++i)
     {
@@ -137,47 +137,47 @@ void test_allocations()
 
 void test_copy()
 {
-    IntVector a;
+    Vector<int> a;
     a.push_back(1);
     a.push_back(2);
     // copy constructor
-    IntVector b = a;
+    Vector<int> b = a;
     b[0] = 99;
     assert(a[0] == 1);
     assert(b[0] == 99);
-    IntVector c;
+    Vector<int> c;
     c.push_back(1);
     c.push_back(2);
-    IntVector d;
+    Vector<int> d;
     // copy assignment
     d = c;
     d[0] = 99;
     assert(c[0] == 1);
     assert(d[0] == 99);
     // copy empty vector
-    IntVector e;
-    IntVector f = e;
+    Vector<int> e;
+    Vector<int> f = e;
 }
 
 void test_move()
 {
-    IntVector a;
+    Vector<int> a;
     a.push_back(1);
     a.push_back(2);
     // move constructor
-    IntVector b = std::move(a);
+    Vector<int> b = std::move(a);
     assert(b[0] == 1);
     assert(b[1] == 2);
     // move assignment
-    IntVector c;
+    Vector<int> c;
     c.push_back(1);
     c.push_back(2);
-    IntVector d;
+    Vector<int> d;
     d = std::move(c);
     assert(d[0] == 1);
     assert(d[1] == 2);
     // self assignment
-    IntVector e;
+    Vector<int> e;
     e.push_back(1);
     e.push_back(2);
     #pragma GCC diagnostic push
