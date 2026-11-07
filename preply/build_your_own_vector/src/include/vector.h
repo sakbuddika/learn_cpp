@@ -7,7 +7,7 @@
 template <typename T>
 class Vector {
     private:
-        const T CAPACITY_MULTIPLIER = 2;
+        const int CAPACITY_MULTIPLIER = 2;
         T* buffer_ = nullptr;
         std::size_t size_ = 0;
         std::size_t capacity_ = 0;
@@ -114,7 +114,7 @@ class Vector {
             return buffer_[index];
         }
 
-        void push_back(T value)
+        void push_back(const T& value) // copies value
         {
             if(capacity_ <= size_)
             {
@@ -126,6 +126,21 @@ class Vector {
                 reserve(capacity_);
             }
             buffer_[size_] = value;
+            size_++;
+        }
+
+        void push_back(T&& value) // move value
+        {
+            if(capacity_ <= size_)
+            {
+                if(capacity_ == 0)
+                {
+                    capacity_ = 1;
+                }
+                capacity_ *= CAPACITY_MULTIPLIER;
+                reserve(capacity_);
+            }
+            buffer_[size_] = std::move(value);
             size_++;
         }
 
@@ -152,5 +167,5 @@ class Vector {
             size_ = 0;
         }
         void set_allocations() {allocations_++;}
-        T get_allocations() {return allocations_;}
+        int get_allocations() {return allocations_;}
 };
