@@ -571,6 +571,8 @@ void test_tracer()
         v.push_back(Tracer(7));
         std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
         std::cout << "Tracer::default_constructed: " << Tracer::default_constructed << std::endl;
+        std::cout << "Tracer::copies: " <<  Tracer::copies << std::endl;
+        std::cout << "Tracer::moves: " <<  Tracer::moves << std::endl;
     }
     std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
 }
