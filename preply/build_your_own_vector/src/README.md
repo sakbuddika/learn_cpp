@@ -65,3 +65,10 @@ In order for this to happen you need the full definition of the template in the 
 Copying string is not the same as copying bytes, because when copying strings you copy a pointer to the string. This makes two buffers keeping the same addresses and cause issues during accessing and releasing memory.
 so you can't use memcpy without modifications.
 =================================================================
+Tracer output before fixing
+
+Tracer::alive: 1
+Tracer::default_constructed: 0
+Tracer::alive: 1
+All tests passed 
+=================================================================

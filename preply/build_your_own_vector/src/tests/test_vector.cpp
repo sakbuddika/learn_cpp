@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "vector.h"
+#include "tracer.h"
 
 void test_int_empty_vector()
 {
@@ -561,6 +562,19 @@ void test_string_move()
     #pragma GCC diagnostic pop
 }
 
+void test_tracer()
+{
+    Tracer::reset();
+    {
+        Vector<Tracer> v;
+        v.reserve(100);
+        v.push_back(Tracer(7));
+        std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
+        std::cout << "Tracer::default_constructed: " << Tracer::default_constructed << std::endl;
+    }
+    std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
+}
+
 int main()
 {
     test_int_empty_vector();
@@ -590,5 +604,6 @@ int main()
     test_string_allocations();
     test_string_copy();
     test_string_move();
+    test_tracer();
     std::cout << "All tests passed \n";
 }
