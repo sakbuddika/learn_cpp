@@ -61,4 +61,7 @@ Why is template code normally lives in headers.
 Template code gets converted to actual code during complile time, and the compilation for templates don't happen until the templates are in use.
 In order for this to happen you need the full definition of the template in the header file. Based on where it used the template code will be copied to the source file and convert to support expected type. With templates it can create large header files and longer compilation time. But maintaining and reading the code will be easy with templates.
 
-
+=================================================================
+Copying string is not the same as copying bytes, because when copying strings you copy a pointer to the string. This makes two buffers keeping the same addresses and cause issues during accessing and releasing memory.
+so you can't use memcpy without modifications.
+=================================================================

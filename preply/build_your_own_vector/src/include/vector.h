@@ -8,14 +8,24 @@ template <typename T>
 class Vector {
     private:
         const int CAPACITY_MULTIPLIER = 2;
-        T* buffer_ = nullptr;
+        char* buffer_ = nullptr;
         std::size_t size_ = 0;
         std::size_t capacity_ = 0;
         std::size_t allocations_ = 0;
+        T* buffer() {return reinterpret_cast<T*>(buffer_);}
+        const T* buffer() const {return reinterpret_cast<const T*>(buffer_);}
+        void _ensure_capacity()
+        {
+            if(capacity_ <= size_)
+            {
+                size_t new_capacity = (capacity_ == 0)  ? 1 : capacity_ *= CAPACITY_MULTIPLIER;
+                reserve(new_capacity);
+            }
+        }
     public:
         Vector()
         {
-            buffer_ = new T[capacity_];
+            buffer_ = new char[sizeof(T) * capacity_];
         }
 
         bool operator==(const Vector& other)
@@ -31,9 +41,23 @@ class Vector {
         Vector(const Vector& other)
             :size_(other.size_), capacity_(other.capacity_)
         {
-            buffer_ = new T[capacity_];
+            buffer_ = new char[sizeof(T) * capacity_];
             set_allocations();
-            std::memcpy(buffer_, other.buffer_, sizeof(T) * size_);
+            T* new_items_ = reinterpret_cast<T*>(buffer_);
+            T* items_ = reinterpret_cast<T*>(other.buffer_);
+
+            for (size_t i = 0; i < size_; ++i)
+            {
+                if constexpr (std::is_trivially_copyable_v<T>)
+                {
+                    std::memcpy(new_items_ + i, items_ + i, sizeof(T));
+                }
+                else
+                {
+                    // placement new: re-construct element at the new address via move
+                    new(new_items_ + i) T(items_[i]);
+                }
+            }
         }
 
         Vector& operator=(const Vector& other)
@@ -82,6 +106,7 @@ class Vector {
             delete[] buffer_;
         }
 
+
         std::size_t size() const
         {
             return size_;
@@ -99,48 +124,32 @@ class Vector {
 
         T& operator[](std::size_t index)
         {
-            return buffer_[index];
+            return buffer()[index];
         }
 
         const T& operator[](std::size_t index) const
         {
-            return buffer_[index];
+            return buffer()[index];
         }
 
         T& at(std::size_t index)
         {
             if (index >= size_)
                 throw std::out_of_range("Index is out of bound");
-            return buffer_[index];
+            return buffer()[index];
         }
 
         void push_back(const T& value) // copies value
         {
-            if(capacity_ <= size_)
-            {
-                if(capacity_ == 0)
-                {
-                    capacity_ = 1;
-                }
-                capacity_ *= CAPACITY_MULTIPLIER;
-                reserve(capacity_);
-            }
-            buffer_[size_] = value;
+            _ensure_capacity();
+            new (buffer() + size_)  T(value);
             size_++;
         }
 
         void push_back(T&& value) // move value
         {
-            if(capacity_ <= size_)
-            {
-                if(capacity_ == 0)
-                {
-                    capacity_ = 1;
-                }
-                capacity_ *= CAPACITY_MULTIPLIER;
-                reserve(capacity_);
-            }
-            buffer_[size_] = std::move(value);
+            _ensure_capacity();
+            new (buffer() + size_)  T(std::move(value));
             size_++;
         }
 
@@ -153,9 +162,24 @@ class Vector {
         void reserve(std::size_t new_capacity)
         {
             if(new_capacity >= capacity_){
-                T* new_buffer_ = new T[new_capacity];
+                char* new_buffer_ = new char[sizeof(T) * new_capacity];
+                T* new_items_ = reinterpret_cast<T*>(new_buffer_);
+                T* items_ = reinterpret_cast<T*>(buffer_);
+
                 set_allocations();
-                std::memcpy(new_buffer_, buffer_, sizeof(T) * size_);
+                for (size_t i = 0; i < size_; ++i)
+                {
+                    if constexpr (std::is_trivially_copyable_v<T>)
+                    {
+                        std::memcpy(new_items_ + i, items_ + i, sizeof(T));
+                    }
+                    else
+                    {
+                        // placement new: re-construct element at the new address via move
+                        new(new_items_ + i) T(std::move(items_[i]));
+                        items_[i].~T();
+                    }
+                }
                 delete[] buffer_;
                 buffer_ = new_buffer_;
                 capacity_ = new_capacity;

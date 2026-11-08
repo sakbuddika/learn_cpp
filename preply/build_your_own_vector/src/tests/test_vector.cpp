@@ -131,7 +131,7 @@ void test_int_allocations()
     {
         v.push_back(i);
     }
-    assert(v.get_allocations() == 10);
+    assert(v.get_allocations() == 11);
     assert(v.size() == 1000);
     assert(v.capacity() == 1024);
 }
@@ -317,7 +317,7 @@ void test_double_allocations()
     {
         v.push_back(i);
     }
-    assert(v.get_allocations() == 10);
+    assert(v.get_allocations() == 11);
     assert(v.size() == 1000);
     assert(v.capacity() == 1024);
 }
@@ -461,13 +461,13 @@ void test_string_operators()
     {
         v.push_back(std::move(std::to_string(i)));
     }
-    v[0] = 100;
+    v[0] = std::to_string(100);
     for (int i = 0; i < 100; ++i)
     {
         v.push_back(std::move(std::to_string(i)));
     }
     // test index operator can assign values
-    v[0] = 100;
+    v[0] = std::to_string(100);
     assert(v[0] == std::to_string(100));
 }
 
@@ -503,7 +503,7 @@ void test_string_allocations()
     {
         v.push_back(std::move(std::to_string(i)));
     }
-    assert(v.get_allocations() == 10);
+    assert(v.get_allocations() == 11);
     assert(v.size() == 1000);
     assert(v.capacity() == 1024);
 }
@@ -556,7 +556,7 @@ void test_string_move()
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wself-move"
     e = std::move(e);
-    assert(e[0] == "plaugh");
+    assert(e[0] == "plugh");
     assert(e[1] == "xyzzy");
     #pragma GCC diagnostic pop
 }
