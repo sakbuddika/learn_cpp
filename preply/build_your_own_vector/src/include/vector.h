@@ -3,17 +3,18 @@
 #include <cstring>
 #include <stdexcept>
 #include <utility>
+#include <new>
 
 template <typename T>
 class Vector {
     private:
         const int CAPACITY_MULTIPLIER = 2;
-        char* buffer_ = nullptr;
+        T* buffer_ = nullptr;
         std::size_t size_ = 0;
         std::size_t capacity_ = 0;
         std::size_t allocations_ = 0;
-        T* buffer() {return reinterpret_cast<T*>(buffer_);}
-        const T* buffer() const {return reinterpret_cast<const T*>(buffer_);}
+        T* buffer() {return static_cast<T*>(buffer_);}
+        const T* buffer() const {return static_cast<const T*>(buffer_);}
         void _ensure_capacity()
         {
             if(capacity_ <= size_)
@@ -25,7 +26,7 @@ class Vector {
     public:
         Vector()
         {
-            buffer_ = new char[sizeof(T) * capacity_];
+            buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
         }
 
         bool operator==(const Vector& other)
@@ -39,23 +40,22 @@ class Vector {
         }
 
         Vector(const Vector& other)
-            :size_(other.size_), capacity_(other.capacity_)
+            :size_(other.size_),capacity_(other.capacity_)
         {
-            buffer_ = new char[sizeof(T) * capacity_];
-            set_allocations();
-            T* new_items_ = reinterpret_cast<T*>(buffer_);
-            T* items_ = reinterpret_cast<T*>(other.buffer_);
+            T* buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
+            T* other_buffer_ = static_cast<T*>(other.buffer_);
 
+            set_allocations();
             for (size_t i = 0; i < size_; ++i)
             {
                 if constexpr (std::is_trivially_copyable_v<T>)
                 {
-                    std::memcpy(new_items_ + i, items_ + i, sizeof(T));
+                    std::memcpy(buffer_ + i, other_buffer_ + i, sizeof(T));
                 }
                 else
                 {
-                    // placement new: re-construct element at the new address via move
-                    new(new_items_ + i) T(items_[i]);
+                    // placement new: re-construct element at the new address
+                    new(buffer_ + i)  T(*(other_buffer_ + i));
                 }
             }
         }
@@ -87,7 +87,7 @@ class Vector {
         {
             if (*this != other)
             {
-                delete[] buffer_;
+                ::operator delete(buffer_);
                 size_ = other.size_;
                 capacity_ = other.capacity_;
                 allocations_ = other.allocations_;
@@ -103,7 +103,7 @@ class Vector {
 
         ~Vector()
         {
-            delete[] buffer_;
+            ::operator delete(buffer_);
         }
 
 
@@ -162,25 +162,23 @@ class Vector {
         void reserve(std::size_t new_capacity)
         {
             if(new_capacity >= capacity_){
-                char* new_buffer_ = new char[sizeof(T) * new_capacity];
-                T* new_items_ = reinterpret_cast<T*>(new_buffer_);
-                T* items_ = reinterpret_cast<T*>(buffer_);
+                T* new_buffer_ = static_cast<T*>(::operator new(new_capacity * sizeof(T)));
 
                 set_allocations();
                 for (size_t i = 0; i < size_; ++i)
                 {
                     if constexpr (std::is_trivially_copyable_v<T>)
                     {
-                        std::memcpy(new_items_ + i, items_ + i, sizeof(T));
+                        std::memcpy(new_buffer_ + i, buffer_ + i, sizeof(T));
                     }
                     else
                     {
-                        // placement new: re-construct element at the new address via move
-                        new(new_items_ + i) T(std::move(items_[i]));
-                        items_[i].~T();
+                        // placement new: re-construct element at the new address
+                        new(new_buffer_ + i)  T(*(buffer_ + i));
+                        buffer_[i].~T();
                     }
                 }
-                delete[] buffer_;
+                ::operator delete(buffer_);
                 buffer_ = new_buffer_;
                 capacity_ = new_capacity;
             }
