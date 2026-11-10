@@ -42,21 +42,14 @@ class Vector {
         Vector(const Vector& other)
             :size_(other.size_),capacity_(other.capacity_)
         {
-            T* buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
+            buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
             T* other_buffer_ = static_cast<T*>(other.buffer_);
 
             set_allocations();
             for (size_t i = 0; i < size_; ++i)
             {
-                if constexpr (std::is_trivially_copyable_v<T>)
-                {
-                    std::memcpy(buffer_ + i, other_buffer_ + i, sizeof(T));
-                }
-                else
-                {
-                    // placement new: re-construct element at the new address
-                    new(buffer_ + i)  T(*(other_buffer_ + i));
-                }
+                // placement new: re-construct element at the new address
+                new(buffer_ + i)  T(*(other_buffer_ + i));
             }
         }
 
@@ -149,7 +142,7 @@ class Vector {
         void push_back(T&& value) // move value
         {
             _ensure_capacity();
-            new (buffer() + size_)  T(std::move(value));
+            new (buffer() + size_)  T(value);
             size_++;
         }
 
@@ -167,16 +160,8 @@ class Vector {
                 set_allocations();
                 for (size_t i = 0; i < size_; ++i)
                 {
-                    if constexpr (std::is_trivially_copyable_v<T>)
-                    {
-                        std::memcpy(new_buffer_ + i, buffer_ + i, sizeof(T));
-                    }
-                    else
-                    {
-                        // placement new: re-construct element at the new address
-                        new(new_buffer_ + i)  T(*(buffer_ + i));
-                        buffer_[i].~T();
-                    }
+                    new(new_buffer_ + i)  T(*(buffer_ + i));
+                    buffer_[i].~T();
                 }
                 ::operator delete(buffer_);
                 buffer_ = new_buffer_;
