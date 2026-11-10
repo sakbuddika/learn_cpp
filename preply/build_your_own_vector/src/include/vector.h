@@ -96,6 +96,10 @@ class Vector {
 
         ~Vector()
         {
+            for (size_t i = 0; i < size_; ++i)
+            {
+                buffer_[i].~T();
+            }
             ::operator delete(buffer_);
         }
 
@@ -149,7 +153,10 @@ class Vector {
         void pop_back()
         {
             if(size_ > 0)
+            {
+                buffer_[size_ - 1].~T();
                 size_--;
+            }
         }
 
         void reserve(std::size_t new_capacity)
@@ -171,6 +178,10 @@ class Vector {
 
         void clear()
         {
+            for (size_t i = 0; i < size_; ++i)
+            {
+                buffer_[i].~T();
+            }
             size_ = 0;
         }
         void set_allocations() {allocations_++;}

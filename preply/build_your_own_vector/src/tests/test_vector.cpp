@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <utility>
 #include "vector.h"
 #include "tracer.h"
 
@@ -566,15 +567,28 @@ void test_tracer()
 {
     Tracer::reset();
     {
-        Vector<Tracer> v;
-        v.reserve(100);
-        v.push_back(Tracer(7));
-        std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
-        std::cout << "Tracer::default_constructed: " << Tracer::default_constructed << std::endl;
-        std::cout << "Tracer::copies: " <<  Tracer::copies << std::endl;
-        std::cout << "Tracer::moves: " <<  Tracer::moves << std::endl;
+        Vector<Tracer> t1;
+        t1.reserve(100);
+        t1.push_back(Tracer());
+        assert(Tracer::alive == 1);
+        assert(Tracer::default_constructed == 1);
+        assert(Tracer::copies == 1);
+        assert(Tracer::moves == 0);
+        assert(t1.size() == 1);
+        assert(t1.capacity() == 100);
+        assert(t1.get_allocations() == 1);
+        Vector<Tracer> t2;
+        t2.reserve(100);
+        t2.push_back(Tracer(7));
+        assert(Tracer::alive == 2);
+        assert(Tracer::default_constructed == 1);
+        assert(Tracer::copies == 2);
+        assert(Tracer::moves == 0);
+        assert(t2.size() == 1);
+        assert(t2.capacity() == 100);
+        assert(t2.get_allocations() == 1);
     }
-    std::cout << "Tracer::alive: " <<  Tracer::alive << std::endl;
+    assert(Tracer::alive == 0);
 }
 
 int main()
