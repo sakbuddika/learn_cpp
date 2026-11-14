@@ -591,6 +591,35 @@ void test_tracer()
     assert(Tracer::alive == 0);
 }
 
+void test_range_based_loops()
+{
+    Vector<std::string> names;
+    names.push_back("Ada");
+    names.push_back("Bjarne");
+    names.push_back("C++");
+    names.pop_back();
+    int i = 0;
+    for (const auto& name : names) {
+        assert(name == names[i]);
+        i++;
+    }
+}
+
+void test_traditional_iterators()
+{
+    Vector<int> numbers;
+    numbers.push_back(1);
+    numbers.push_back(2);
+    numbers.push_back(3);
+    numbers.push_back(4);
+    numbers.pop_back();
+    int i = 0;
+    for (Vector<int>::Iterator it = numbers.begin(); it != numbers.end(); it++) {
+        assert(*it == numbers[i]);
+        i++;
+    }
+}
+
 int main()
 {
     test_int_empty_vector();
@@ -621,5 +650,7 @@ int main()
     test_string_copy();
     test_string_move();
     test_tracer();
+    test_range_based_loops();
+    test_traditional_iterators();
     std::cout << "All tests passed \n";
 }

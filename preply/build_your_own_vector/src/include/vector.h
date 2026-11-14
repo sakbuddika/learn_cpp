@@ -4,25 +4,53 @@
 #include <stdexcept>
 #include <utility>
 #include <new>
+#include <vector>
+
+template <typename Vector>
+class VectorIterator
+{
+    public:
+        using ValueType = typename Vector::ValueType;
+        using PointerType = ValueType*;
+        using RefernceType = ValueType&;
+    public:
+        VectorIterator(PointerType ptr)
+            :m_ptr(ptr) {}
+        VectorIterator& operator++()
+        {
+            m_ptr++;
+            return *this;
+        }
+        VectorIterator operator++(int)
+        {
+            VectorIterator iterator = *this;
+            ++(*this);
+            return iterator;
+        }
+        RefernceType operator*()
+        {
+            return *m_ptr;
+        }
+
+        bool operator==(const VectorIterator& other) const
+        {
+            return m_ptr == other.m_ptr;
+        }
+
+        bool operator!=(const VectorIterator& other) const
+        {
+            return !(*this == other);
+        }
+
+    private:
+        PointerType m_ptr;
+};
 
 template <typename T>
 class Vector {
-    private:
-        const int CAPACITY_MULTIPLIER = 2;
-        T* buffer_ = nullptr;
-        std::size_t size_ = 0;
-        std::size_t capacity_ = 0;
-        std::size_t allocations_ = 0;
-        T* buffer() {return static_cast<T*>(buffer_);}
-        const T* buffer() const {return static_cast<const T*>(buffer_);}
-        void _ensure_capacity()
-        {
-            if(capacity_ <= size_)
-            {
-                size_t new_capacity = (capacity_ == 0)  ? 1 : capacity_ *= CAPACITY_MULTIPLIER;
-                reserve(new_capacity);
-            }
-        }
+    public:
+        using ValueType = T;
+        using Iterator = VectorIterator<Vector<T>>;
     public:
         Vector()
         {
@@ -184,6 +212,36 @@ class Vector {
             }
             size_ = 0;
         }
+
+        Iterator begin()
+        {
+            return Iterator(buffer_);
+        }
+
+        Iterator end()
+        {
+            return Iterator(buffer_ + size());
+        }
+
         void set_allocations() {allocations_++;}
         int get_allocations() {return allocations_;}
+        void set_position() {position_++;}
+        int get_position() {return position_;}
+    private:
+        const int CAPACITY_MULTIPLIER = 2;
+        T* buffer_ = nullptr;
+        std::size_t size_ = 0;
+        std::size_t capacity_ = 0;
+        std::size_t allocations_ = 0;
+        std::size_t position_ = 0;
+        T* buffer() {return static_cast<T*>(buffer_);}
+        const T* buffer() const {return static_cast<const T*>(buffer_);}
+        void _ensure_capacity()
+        {
+            if(capacity_ <= size_)
+            {
+                size_t new_capacity = (capacity_ == 0)  ? 1 : capacity_ *= CAPACITY_MULTIPLIER;
+                reserve(new_capacity);
+            }
+        }
 };
