@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "tracer.h"
 
+namespace {
 void test_int_empty_vector()
 {
     Vector<int> v;
@@ -183,12 +184,12 @@ void test_int_move()
     Vector<int> e;
     e.push_back(1);
     e.push_back(2);
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wself-move"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
     e = std::move(e);
     assert(e[0] == 1);
     assert(e[1] == 2);
-    #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 }
 
 void test_double_empty_vector()
@@ -369,12 +370,12 @@ void test_double_move()
     Vector<double> e;
     e.push_back(1.1);
     e.push_back(2.2);
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wself-move"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
     e = std::move(e);
     assert(e[0] == 1.1);
     assert(e[1] == 2.2);
-    #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 }
 
 void test_string_empty_vector()
@@ -555,12 +556,12 @@ void test_string_move()
     Vector<std::string> e;
     e.push_back(std::move("plugh"));
     e.push_back(std::move("xyzzy"));
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wself-move"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
     e = std::move(e);
     assert(e[0] == "plugh");
     assert(e[1] == "xyzzy");
-    #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 }
 
 void test_tracer()
@@ -572,8 +573,8 @@ void test_tracer()
         t1.push_back(Tracer());
         assert(Tracer::alive == 1);
         assert(Tracer::default_constructed == 1);
-        assert(Tracer::copies == 1);
-        assert(Tracer::moves == 0);
+        assert(Tracer::copies == 0);
+        assert(Tracer::moves == 1);
         assert(t1.size() == 1);
         assert(t1.capacity() == 100);
         assert(t1.get_allocations() == 1);
@@ -582,8 +583,8 @@ void test_tracer()
         t2.push_back(Tracer(7));
         assert(Tracer::alive == 2);
         assert(Tracer::default_constructed == 1);
-        assert(Tracer::copies == 2);
-        assert(Tracer::moves == 0);
+        assert(Tracer::copies == 0);
+        assert(Tracer::moves == 2);
         assert(t2.size() == 1);
         assert(t2.capacity() == 100);
         assert(t2.get_allocations() == 1);
@@ -614,11 +615,12 @@ void test_traditional_iterators()
     numbers.push_back(4);
     numbers.pop_back();
     int i = 0;
-    for (Vector<int>::Iterator it = numbers.begin(); it != numbers.end(); it++) {
+    for (Vector<int>::iterator it = numbers.begin(); it != numbers.end(); it++) {
         assert(*it == numbers[i]);
         i++;
     }
 }
+} // anonymous namespace
 
 int main()
 {

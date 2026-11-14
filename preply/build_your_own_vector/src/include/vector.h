@@ -5,7 +5,9 @@
 #include <utility>
 #include <new>
 #include <vector>
+#include <algorithm>
 
+/*
 template <typename Vector>
 class VectorIterator
 {
@@ -45,30 +47,37 @@ class VectorIterator
     private:
         PointerType m_ptr;
 };
+*/
 
 template <typename T>
 class Vector {
     public:
         using ValueType = T;
-        using Iterator = VectorIterator<Vector<T>>;
-    public:
+        using iterator = T*;
+        using const_iterator = const T*;
+        using reverse_iterator = std::reverse_iterator<iterator>;
+        using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
         Vector()
         {
             buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
         }
 
-        bool operator==(const Vector& other)
+        // non-member functions for comparison operators
+        friend bool operator==(const Vector& left, const Vector& other)
         {
-            return (this->buffer_ == other.buffer_);
+            return std::equal(
+                left.buffer_, left.buffer_ + left.size_,
+                other.buffer_, other.buffer_ + other.size_);
         }
 
-        bool operator!=(const Vector& other)
+        friend bool operator!=(const Vector& left, const Vector& other)
         {
-            return (this->buffer_ != other.buffer_);
+            return !(left == other);
         }
 
         Vector(const Vector& other)
-            :size_(other.size_),capacity_(other.capacity_)
+            :size_(other.size_), capacity_(other.capacity_)
         {
             buffer_ = static_cast<T*>(::operator new(capacity_ * sizeof(T)));
             T* other_buffer_ = static_cast<T*>(other.buffer_);
@@ -83,6 +92,7 @@ class Vector {
 
         Vector& operator=(const Vector& other)
         {
+            if (this == &other) { return *this; }
             Vector temp_ = other;
             std::swap(size_,temp_.size_);
             std::swap(capacity_,temp_.capacity_);
@@ -108,6 +118,10 @@ class Vector {
         {
             if (*this != other)
             {
+                for (size_t i = 0; i < size_; ++i)
+                {
+                    buffer_[i].~T();
+                }
                 ::operator delete(buffer_);
                 size_ = other.size_;
                 capacity_ = other.capacity_;
@@ -132,19 +146,19 @@ class Vector {
         }
 
 
-        std::size_t size() const
+        [[nodiscard]] std::size_t size() const
         {
             return size_;
         }
 
-        std::size_t capacity() const
+        [[nodiscard]] std::size_t capacity() const
         {
             return capacity_;
         }
 
-        bool empty() const
+        [[nodiscard]] bool empty() const
         {
-            return (size_ == 0);
+            return size_ == 0;
         }
 
         T& operator[](std::size_t index)
@@ -167,14 +181,14 @@ class Vector {
         void push_back(const T& value) // copies value
         {
             _ensure_capacity();
-            new (buffer() + size_)  T(value);
+            new (buffer() + size_) T(value);
             size_++;
         }
 
         void push_back(T&& value) // move value
         {
             _ensure_capacity();
-            new (buffer() + size_)  T(value);
+            new (buffer() + size_) T(std::move(value));
             size_++;
         }
 
@@ -187,15 +201,15 @@ class Vector {
             }
         }
 
-        void reserve(std::size_t new_capacity)
+        void reserve(const std::size_t new_capacity)
         {
-            if(new_capacity >= capacity_){
+            if(new_capacity > capacity_){
                 T* new_buffer_ = static_cast<T*>(::operator new(new_capacity * sizeof(T)));
 
                 set_allocations();
                 for (size_t i = 0; i < size_; ++i)
                 {
-                    new(new_buffer_ + i)  T(*(buffer_ + i));
+                    new(new_buffer_ + i) T(std::move(*(buffer_ + i)));
                     buffer_[i].~T();
                 }
                 ::operator delete(buffer_);
@@ -213,20 +227,70 @@ class Vector {
             size_ = 0;
         }
 
-        Iterator begin()
+        iterator begin()
         {
-            return Iterator(buffer_);
+            return iterator(buffer_);
         }
 
-        Iterator end()
+        iterator end()
         {
-            return Iterator(buffer_ + size());
+            return iterator(buffer_ + size());
+        }
+
+        const_iterator begin() const
+        {
+            return const_iterator(buffer_);
+        }
+
+        const_iterator end() const
+        {
+            return const_iterator(buffer_ + size());
+        }
+
+        const_iterator cbegin() const
+        {
+            return const_iterator(buffer_);
+        }
+
+        const_iterator cend() const
+        {
+            return const_iterator(buffer_ + size());
+        }
+
+        reverse_iterator rbegin()
+        {
+            return reverse_iterator(end());
+        }
+
+        reverse_iterator rend()
+        {
+            return reverse_iterator(begin());
+        }
+
+        const_reverse_iterator rbegin() const
+        {
+            return const_reverse_iterator(end());
+        }
+
+        const_reverse_iterator rend() const
+        {
+            return const_reverse_iterator(begin());
+        }
+
+        const_reverse_iterator crbegin() const
+        {
+            return const_reverse_iterator(end());
+        }
+
+        const_reverse_iterator crend() const
+        {
+            return const_reverse_iterator(begin());
         }
 
         void set_allocations() {allocations_++;}
-        int get_allocations() {return allocations_;}
+        [[nodiscard]] int get_allocations() const {return allocations_;}
         void set_position() {position_++;}
-        int get_position() {return position_;}
+        [[nodiscard]] int get_position() const {return position_;}
     private:
         const int CAPACITY_MULTIPLIER = 2;
         T* buffer_ = nullptr;
@@ -240,7 +304,7 @@ class Vector {
         {
             if(capacity_ <= size_)
             {
-                size_t new_capacity = (capacity_ == 0)  ? 1 : capacity_ *= CAPACITY_MULTIPLIER;
+                const size_t new_capacity = capacity_ == 0 ? 1 : capacity_ * CAPACITY_MULTIPLIER;
                 reserve(new_capacity);
             }
         }
