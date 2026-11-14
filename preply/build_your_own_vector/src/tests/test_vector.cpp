@@ -1,9 +1,43 @@
 #include <cassert>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
+#include <new>
 #include <string>
 #include <utility>
 #include "vector.h"
 #include "tracer.h"
+
+static int allocations = 0;
+static int deallocations = 0;
+
+void* operator new(const std::size_t size)
+{
+    allocations++;
+    if (void* p = std::malloc(size)) {
+        return p;
+    }
+    throw std::bad_alloc{};
+}
+
+// ::operator delete(nullptr) is allowed and does nothing, but it still
+// calls this function. Only count real frees, otherwise moved-from and
+// empty vectors inflate the count and can hide a leak.
+void operator delete(void* p) noexcept
+{
+    if (p != nullptr) {
+        deallocations++;
+    }
+    std::free(p);
+}
+
+void operator delete(void* p, std::size_t) noexcept
+{
+    if (p != nullptr) {
+        deallocations++;
+    }
+    std::free(p);
+}
 
 namespace {
 void test_int_empty_vector()
@@ -620,6 +654,40 @@ void test_traditional_iterators()
         i++;
     }
 }
+
+// Move assignment must destroy the strings the target already holds
+// before it frees the target's buffer. Freeing only the buffer leaks
+// the heap memory of every long string in it.
+void test_move_assignment_leak()
+{
+    // Longer than 15 characters: the text lives on the heap, not inside
+    // the std::string object (small string optimisation).
+    const std::string long_text =
+        "This string is too long for the small string optimisation.";
+
+    // Only count what happens inside the scope below.
+    const int allocations_before = allocations;
+    const int deallocations_before = deallocations;
+    {
+        Vector<std::string> target;
+        target.push_back(long_text);  // copy: allocates the text
+        target.push_back(long_text);  // copy: allocates the text
+
+        // Different contents, so the 'if (*this != other)' check in
+        // move assignment is true and the assignment really happens.
+        Vector<std::string> source;
+        source.push_back("short");
+
+        target = std::move(source);  // target's two strings must be destroyed
+    }  // both vectors are destroyed here
+    const int allocated = allocations - allocations_before;
+    const int freed = deallocations - deallocations_before;
+
+    std::printf("move assignment: %d allocations, %d deallocations, "
+                "%d leaked\n", allocated, freed, allocated - freed);
+    std::fflush(stdout);  // a failing assert aborts and drops unflushed output
+    assert(allocated == freed);
+}
 } // anonymous namespace
 
 int main()
@@ -654,5 +722,6 @@ int main()
     test_tracer();
     test_range_based_loops();
     test_traditional_iterators();
+    test_move_assignment_leak();
     std::cout << "All tests passed \n";
 }
